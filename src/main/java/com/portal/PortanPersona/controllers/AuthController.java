@@ -2,6 +2,7 @@ package com.portal.PortanPersona.controllers;
 
 import com.portal.PortanPersona.dao.UsuarioDao;
 import com.portal.PortanPersona.models.Usuario;
+import com.portal.PortanPersona.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,10 +15,16 @@ public class AuthController {
     @Autowired
    private UsuarioDao usuarioDao;
 
+    @Autowired
+    private JWTUtil jwtUtil;
+
     @RequestMapping(value = "api/login",method = RequestMethod.POST)
     public String login(@RequestBody Usuario usuario) {
-        if (usuarioDao.verificardatos(usuario)){
-            return "OK";
+
+        Usuario usuarioLogueado = usuarioDao.obtenerUsuario(usuario);
+        if (usuarioLogueado != null) {
+            String tokenJwt = jwtUtil.create(String.valueOf(usuarioLogueado.getId()), usuarioLogueado.getEmail());
+            return tokenJwt;
         }
         return"FAIL";
     }
